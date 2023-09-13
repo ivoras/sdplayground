@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <title>Stable Diffusion playground</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3/dist/litera/bootstrap.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.min.js" integrity="sha512-fHY2UiQlipUq0dEabSM4s+phmn+bcxSYzXP4vAXItBvBHU7zAM/mkhCZjtBEIJexhOMzZbgFlPLuErlJF2b+0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.js" integrity="sha512-2AL/VEauKkZqQU9BHgnv48OhXcJPx9vdzxN1JrKDVc4FPU/MEE/BZ6d9l0mP7VmvLsjtYwqiYQpDskK9dG8KBA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>  </head>
+  <body>
+
+    <div class="container">
+      <h1>Kreator AI slika za ARt Future</h1>
+
+
+      <h2>Prethodno kreirane slike</h2>
+    </div>
+
+
+    <script>
+      var viewModel = {
+        history: ko.observableArray(),
+      }
+
+      function fetchHistory() {
+        var resp = await fetch("/api/history");
+        var history = await resp.json();
+        viewModel.history(history);
+      }
+
+      window.addEventListener("load", (e) => {
+        fetchHistory();
+      });
+    </script>
+  </body>
+</html>

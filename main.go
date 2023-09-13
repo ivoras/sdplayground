@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"io"
 	"log"
@@ -12,6 +13,9 @@ import (
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 )
 
 const (
@@ -28,6 +32,8 @@ var logOutput io.Writer
 var startTime time.Time
 
 var logFileName = flag.String("log", "/tmp/af.log", "Log file ('-' for only stderr)")
+
+var db *bun.DB
 
 func main() {
 	os.Setenv("TZ", "UTC")
@@ -56,7 +62,12 @@ func main() {
 	sigChannel := make(chan os.Signal, 1)
 	signal.Notify(sigChannel, syscall.SIGINT)
 
-	//go webServer()
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(os.Getenv("DB_DSN"))))
+	db = bun.NewDB(sqldb, pgdialect.New())
+	defer db.Close()
+	defer sqldb.Close()
+
+	go webServer()
 	//go infraWebServer()
 
 	var m runtime.MemStats

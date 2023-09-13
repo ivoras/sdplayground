@@ -1,0 +1,12 @@
+[Unit]
+Description=Stable Diffusion Playground Web
+
+[Service]
+ExecStart=/srv/sdplayground/sdplayground
+WorkingDirectory=/srv/sdplayground
+User=equinox
+Group=equinox
+
+[Install]
+WantedBy=multi-user.target
+
