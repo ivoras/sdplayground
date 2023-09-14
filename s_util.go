@@ -257,3 +257,24 @@ type BiggishNumber interface {
 func bToMB[T BiggishNumber](n T) T {
 	return n / T(1024*1024)
 }
+
+func downloadFile(url string, filepath string) error {
+
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Create the file
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	return err
+}

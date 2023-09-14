@@ -9,8 +9,63 @@
     <div class="container">
       <h1>Kreator AI slika za ARt Future</h1>
 
+      <h2>Kreiranje nove slike</h2>
+
+      <div class="form-group">
+        <fieldset>
+          <div class="form-group row">
+            <label for="username" class="form-label mt-4">Ime i prezime autora</label>
+            <input type="text" class="form-control" id="username">
+          </div>
+          <div class="form-group row">
+            <label for="model" class="form-label mt-4">AI model</label>
+            <select class="form-select" id="model">
+              <option value="midjourney">Midjourney-like</option>
+              <option value="sdxl">SD XL 1.0</option>
+              <option value="tron-legacy-diffusion">Tron Legacy Diffusion</option>
+              <option value="synthwave-diffusion">SynthwavePunk</option>
+              <option value="night-diffusion">Night Diffusion</option>
+              <option value="dream-shaper-8797">Dream shaper</option>
+              <option value="f222-diffusion">F222</option>
+              <option value="dark-sushi-25d">Dark Sushi 2.5D</option>
+            </select>
+          </div>
+          <div class="form-group row">
+            <label for="prompt" class="form-label mt-4">Prompt</label>
+            <textarea class="form-control" id="prompt" rows="3">A futuristic cityscape with a superhero watching over it</textarea>
+          </div>
+        </fieldset>
+        <div style="text-align: center; margin-top: 1rem;">
+          <button onclick="generate()" class="btn btn-primary">Kreiraj sliku</button>
+        </div>
+      </div>
+
+      <h2>Slika</h2>
+
+      <div style="text-align: center; border: solid 1px silver; padding: 10px">
+        <img id="slika">
+      </div>
 
       <h2>Prethodno kreirane slike</h2>
+
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Ime autora</th>
+            <th scope="col">Model</th>
+            <th scope="col">Prompt</th>
+            <th scope="col">Slika</th>
+          </tr>
+        </thead>
+        <tbody data-bind="foreach: history">
+          <tr>
+            <td data-bind="text: $data.username"></td>
+            <td data-bind="text: $data.model"></td>
+            <td data-bind="text: $data.prompt"></td>
+            <td><span data-bind="text: $index"></span><img data-bind="attr: { src: media_url_prefix + '/' + $data.image_filename }"></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
 
@@ -18,11 +73,48 @@
       var viewModel = {
         history: ko.observableArray(),
       }
+      ko.applyBindings(viewModel);
 
-      function fetchHistory() {
+      var media_url_prefix = "";
+
+      async function fetchHistory() {
         var resp = await fetch("/api/history");
         var history = await resp.json();
-        viewModel.history(history);
+        media_url_prefix = history.media_url_prefix;
+        //alert(JSON.stringify(history.history));
+        viewModel.history(history.history);
+      }
+
+      async function generate() {
+        if (document.getElementById("username").value == "" || document.getElementById("prompt") == "") {
+          alert("Ime autora i prompt moraju biti popunjeni!");
+          return;
+        }
+        document.body.style.cursor = "wait";
+        document.body.style.pointerEvents = "none";
+        document.body.style.backgroundColor = "silver";
+
+        var resp = await fetch("/api/genimg", {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json"
+          },
+          body: JSON.stringify({
+            username: document.getElementById("username").value,
+            model: document.getElementById("model").value,
+            prompt: document.getElementById("prompt").value
+          })
+        });
+        var gen = await resp.json();
+        if (!gen.ok) {
+          alert("Image generation failed");
+        }
+        document.getElementById("slika").src = gen.image_url;
+        fetchHistory();
+
+        document.body.style.cursor = "auto";
+        document.body.style.backgroundColor = "white";
+        document.body.style.pointerEvents = "auto";
       }
 
       window.addEventListener("load", (e) => {
