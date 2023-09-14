@@ -32,7 +32,7 @@
           </div>
           <div class="form-group row">
             <label for="prompt" class="form-label mt-4">Prompt</label>
-            <textarea class="form-control" id="prompt" rows="3">A futuristic cityscape with a superhero watching over it</textarea>
+            <textarea class="form-control" id="prompt" rows="3">photo of a ultra realistic space nebula, dramatic light, cinematic, masterpiece, intricate artwork</textarea>
           </div>
         </fieldset>
         <div style="text-align: center; margin-top: 1rem;">
@@ -51,7 +51,8 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th scope="col">Ime autora</th>
+            <th scope="col">ID</th>
+            <th scope="col" style="width: 10em">Ime autora</th>
             <th scope="col">Model</th>
             <th scope="col">Prompt</th>
             <th scope="col">Slika</th>
@@ -59,10 +60,11 @@
         </thead>
         <tbody data-bind="foreach: history">
           <tr>
+            <td data-bind="text: $data.id"></td>
             <td data-bind="text: $data.username"></td>
             <td data-bind="text: $data.model"></td>
             <td data-bind="text: $data.prompt"></td>
-            <td><span data-bind="text: $index"></span><img data-bind="attr: { src: media_url_prefix + '/' + $data.image_filename }"></td>
+            <td><a target="_blank" data-bind="attr: { href: media_url_prefix + '/' + $data.image_filename }"><img width="350" data-bind="attr: { src: media_url_prefix + '/' + $data.image_filename }"></a></td>
           </tr>
         </tbody>
       </table>
