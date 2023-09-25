@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <title>Stable Diffusion gallery</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3/dist/litera/bootstrap.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.min.js" integrity="sha512-fHY2UiQlipUq0dEabSM4s+phmn+bcxSYzXP4vAXItBvBHU7zAM/mkhCZjtBEIJexhOMzZbgFlPLuErlJF2b+0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.js" integrity="sha512-2AL/VEauKkZqQU9BHgnv48OhXcJPx9vdzxN1JrKDVc4FPU/MEE/BZ6d9l0mP7VmvLsjtYwqiYQpDskK9dG8KBA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>  </head>
+  <body>
+
+    <div class="container">
+      <h1>Galerija radova</h1>
+
+      <div class="row" data-bind="foreach: history">
+        <div class="grid-item card border-primary mb-3" style="max-width: 20rem;">
+          <div class="card-header">[<span data-bind="text: $data.id"></span>] <span data-bind="text: $data.username"></span></div>
+          <div class="card-body">
+            <h4 class="card-title" data-bind="text: $data.prompt"></h4>
+            <p class="card-text">
+              <a target="_blank" data-bind="attr: { href: media_url_prefix + '/' + $data.image_filename }"><img style="width: 100%;" data-bind="attr: { src: media_url_prefix + '/' + $data.image_filename }"></a>
+            </p>
+          </div>        
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      var viewModel = {
+        history: ko.observableArray(),
+      }
+      ko.applyBindings(viewModel);
+
+      var media_url_prefix = "";
+
+      async function fetchHistory() {
+        var resp = await fetch("/api/history?max=3000");
+        var history = await resp.json();
+        media_url_prefix = history.media_url_prefix;
+        //alert(JSON.stringify(history.history));
+        viewModel.history(history.history);
+      }
+
+      window.addEventListener("load", (e) => {
+        fetchHistory();
+
+      });
+    </script>
+  </body>
+</html>

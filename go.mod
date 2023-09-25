@@ -6,9 +6,9 @@ require (
 	github.com/flosch/pongo2/v6 v6.0.0
 	github.com/joho/godotenv v1.5.1
 	github.com/sasha-s/go-deadlock v0.3.1
-	github.com/uptrace/bun v1.1.15
-	github.com/uptrace/bun/dialect/pgdialect v1.1.15
-	github.com/uptrace/bun/driver/pgdriver v1.1.15
+	github.com/uptrace/bun v1.1.16
+	github.com/uptrace/bun/dialect/pgdialect v1.1.16
+	github.com/uptrace/bun/driver/pgdriver v1.1.16
 	github.com/uptrace/bunrouter v1.0.20
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 )

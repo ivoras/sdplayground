@@ -7,6 +7,7 @@ type SDAPIResult struct {
 	Output         []string       `json:"output"`
 	WebhookStatus  string         `json:"webhook_status"`
 	Meta           map[string]any `json:"meta"`
+	FutureLinks    []string       `json:"future_links"`
 }
 
 type SDAPIRequest struct {
@@ -19,4 +20,7 @@ type SDAPIRequest struct {
 	Samples           int     `json:"samples,omitempty"`
 	NumInferenceSteps int     `json:"num_inference_steps,omitempty"`
 	GuidanceScale     float64 `json:"guidance_scale,omitempty"`
+	SelfAttention     string  `json:"self_attention,omitempty"`
+	MultiLingual      string  `json:"multi_lingual,omitempty"`
+	EnhancePrompt     string  `json:"enhance_prompt,omitempty"`
 }

@@ -17,10 +17,12 @@ import (
 )
 
 var tplIndex = pongo2.Must(pongo2.FromFile("templates/index.html"))
+var tplGallery = pongo2.Must(pongo2.FromFile("templates/gallery.html"))
 
 func webServer() {
 	router := bunrouter.New()
 	router.GET("/", webRoot)
+	router.GET("/gallery", webGallery)
 	router.GET("/api/history", webAPIHistory)
 	router.POST("/api/genimg", webAPIGenImg)
 
@@ -43,22 +45,50 @@ func webRoot(w http.ResponseWriter, r bunrouter.Request) (err error) {
 	return
 }
 
+func webGallery(w http.ResponseWriter, r bunrouter.Request) (err error) {
+	tplCtx := pongo2.Context{}
+	err = tplGallery.ExecuteWriter(tplCtx, w)
+	if err != nil {
+		log.Println(err)
+	}
+	return
+}
+
 func webAPIHistory(w http.ResponseWriter, r bunrouter.Request) (err error) {
+	maxReturned := 100
+	maxString := r.URL.Query().Get("max")
+	if maxString != "" {
+		max, err := strconv.Atoi(maxString)
+		if err == nil {
+			maxReturned = max
+		} else {
+			log.Println("error in max param:", err)
+		}
+	}
 	ctx := r.Context()
 	var history []DbHistory
 	err = db.NewSelect().
 		Model(&history).
 		Order("ts DESC").
-		Limit(100).
+		Limit(maxReturned).
 		Scan(ctx)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
+	prunedHistory := make([]DbHistory, 0, len(history))
+	for _, h := range history {
+		fileName := fmt.Sprintf("media/%s", h.ImageFilename)
+		if fileExists(fileName) && !isHtml(fileName) {
+			prunedHistory = append(prunedHistory, h)
+		}
+	}
+
 	return bunrouter.JSON(w, WebResponseHistory{
 		Ok:             true,
 		MediaURLPrefix: os.Getenv("MEDIA_URL"),
-		History:        history,
+		History:        prunedHistory,
 	})
 }
 
@@ -87,8 +117,11 @@ func webAPIGenImg(w http.ResponseWriter, r bunrouter.Request) (err error) {
 		Samples:           1,
 		Width:             resolution,
 		Height:            resolution,
-		NumInferenceSteps: 30,
-		GuidanceScale:     7.5,
+		NumInferenceSteps: 41,
+		GuidanceScale:     13.5,
+		MultiLingual:      "yes",
+		EnhancePrompt:     "no",
+		SelfAttention:     "yes",
 	}
 	sdBody, err := json.Marshal(sdReq)
 	if err != nil {
@@ -129,11 +162,24 @@ func webAPIGenImg(w http.ResponseWriter, r bunrouter.Request) (err error) {
 
 	log.Println("Elapsed time:", time.Since(t0))
 
-	if len(sdResp.Output) == 0 {
-		log.Println("API returned no output?", string(sdRespBody))
-		return bunrouter.JSON(w, WebGenImgResponse{
-			Ok: false,
-		})
+	if sdResp.Status == "processing" {
+		log.Println("Waiting some more for image processing...")
+		if len(sdResp.FutureLinks) == 0 {
+			log.Println("API returned no output?", string(sdRespBody))
+			return bunrouter.JSON(w, WebGenImgResponse{
+				Ok: false,
+			})
+		}
+		url := sdResp.FutureLinks[0]
+		waitForHttpOkContent(url, "image/png")
+		sdResp.Output = sdResp.FutureLinks
+	} else {
+		if len(sdResp.Output) == 0 {
+			log.Println("API returned no output?", string(sdRespBody))
+			return bunrouter.JSON(w, WebGenImgResponse{
+				Ok: false,
+			})
+		}
 	}
 
 	urlParts := strings.Split(sdResp.Output[0], "/")
@@ -167,4 +213,31 @@ func webAPIGenImg(w http.ResponseWriter, r bunrouter.Request) (err error) {
 		Result:   sdResp,
 		ImageURL: imageURL,
 	})
+}
+
+func isHtml(fileName string) bool {
+	f, _ := os.Open(fileName)
+	defer f.Close()
+	b := make([]byte, 1)
+	f.Read(b)
+	return b[0] == '<'
+}
+
+func waitForHttpOkContent(url, mime string) (ok bool, err error) {
+	req, err := http.NewRequest(http.MethodHead, url, nil)
+	if err != nil {
+		return
+	}
+	for {
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return false, err
+		}
+		log.Println("Status code:", res.StatusCode)
+		if res.StatusCode == http.StatusOK && res.Header.Get("Content-type") == mime {
+			return true, nil
+		}
+		log.Println("Still waiting for", url)
+		time.Sleep(1 * time.Second)
+	}
 }
