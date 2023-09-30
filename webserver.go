@@ -20,11 +20,15 @@ var tplIndex = pongo2.Must(pongo2.FromFile("templates/index.html"))
 var tplGallery = pongo2.Must(pongo2.FromFile("templates/gallery.html"))
 
 func webServer() {
+	http.DefaultClient.Timeout = 120 * time.Second
+
 	router := bunrouter.New()
 	router.GET("/", webRoot)
 	router.GET("/gallery", webGallery)
+	router.GET("/grading", webGrading)
 	router.GET("/api/history", webAPIHistory)
 	router.POST("/api/genimg", webAPIGenImg)
+	router.POST("/api/grade", webGrade)
 
 	fs := http.FileServer(http.Dir("./media"))
 	router.GET("/media/*path", bunrouter.HTTPHandler(http.StripPrefix("/media/", fs)))
@@ -38,20 +42,12 @@ func webServer() {
 
 func webRoot(w http.ResponseWriter, r bunrouter.Request) (err error) {
 	tplCtx := pongo2.Context{}
-	err = tplIndex.ExecuteWriter(tplCtx, w)
-	if err != nil {
-		log.Println(err)
-	}
-	return
+	return tplIndex.ExecuteWriter(tplCtx, w)
 }
 
 func webGallery(w http.ResponseWriter, r bunrouter.Request) (err error) {
 	tplCtx := pongo2.Context{}
-	err = tplGallery.ExecuteWriter(tplCtx, w)
-	if err != nil {
-		log.Println(err)
-	}
-	return
+	return tplGallery.ExecuteWriter(tplCtx, w)
 }
 
 func webAPIHistory(w http.ResponseWriter, r bunrouter.Request) (err error) {
@@ -112,7 +108,7 @@ func webAPIGenImg(w http.ResponseWriter, r bunrouter.Request) (err error) {
 	sdReq := SDAPIRequest{
 		Key:               os.Getenv("SD_API_KEY"),
 		ModelID:           req.Model,
-		Prompt:            req.Prompt,
+		Prompt:            strings.TrimSpace(req.Prompt),
 		NegativePrompt:    "extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs",
 		Samples:           1,
 		Width:             resolution,

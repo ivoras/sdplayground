@@ -16,3 +16,8 @@ type DbHistory struct {
 	ImageFilename string      `bun:"image_filename" json:"image_filename"`
 	Result        SDAPIResult `bun:"result" json:"result"`
 }
+
+type DbGrades struct {
+	bun.BaseModel `bun:"table:grades"`
+	WebGradeRequest
+}

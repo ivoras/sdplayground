@@ -18,30 +18,35 @@
             <input type="text" class="form-control" id="username">
           </div>
           <div class="form-group row">
-
             <label for="model" class="form-label mt-4">AI model</label>
-            <div class="alert alert-dismissible alert-info">
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              <strong>Probajte različite AI modele!</strong> Svaki model će drugačije interpretirati prompt!
-            </div>            
-
             <select class="form-select" id="model">
+              <option value="dynavision">Dynavision</option>
+              <option value="wordmaster">Wordmaster</option>
               <option value="midjourney">Midjourney-like</option>
-              <option value="sdxl">SD XL 1.0</option>
+              <option value="sd-1.5">SD 1.5</option>
               <option value="sdxlceshi">SD XL Ceshi variant (cartoon)</option>
+              <option value="disney-pixal-cartoon">Disney Pixal</option>
               <option value="juggernaut-xl">Juggernaut XL</option>
               <option value="tron-legacy-diffusion">Tron Legacy Diffusion</option>
-              <option value="moxin">Moxin</option>
+              <option value="dreamlike">Dreamlike Photoreal 2.0</option>
               <option value="synthwave-diffusion">SynthwavePunk</option>
               <option value="night-diffusion">Night Diffusion</option>
               <option value="dream-shaper-8797">Dream shaper</option>
               <option value="f222-diffusion">F222</option>
               <option value="dark-sushi-25d">Dark Sushi 2.5D</option>
             </select>
+            <div class="alert alert-dismissible alert-info">
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              <strong>Probajte različite AI modele!</strong> Svaki model će drugačije interpretirati prompt!
+            </div>            
           </div>
           <div class="form-group row">
             <label for="prompt" class="form-label mt-4">Prompt</label>
             <textarea class="form-control" id="prompt" rows="3">photo of a ultra realistic space nebula, dramatic light, cinematic, masterpiece, intricate artwork</textarea>
+            <div class="alert alert-dismissible alert-info">
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              <strong>Prompt će najbolje raditi na engleskom.</strong> Ponekad možda uspije na hrvatskom jeziku, ali to je rijetko.
+            </div>            
           </div>
         </fieldset>
         <div style="text-align: center; margin-top: 1rem;">
@@ -101,9 +106,9 @@
           alert("Ime autora i prompt moraju biti popunjeni!");
           return;
         }
-        document.body.style.cursor = "wait";
         document.body.style.pointerEvents = "none";
         document.body.style.backgroundColor = "silver";
+        document.body.style.cursor = "wait";
 
         var resp = await fetch("/api/genimg", {
           method: "POST",

@@ -17,3 +17,13 @@ type WebGenImgResponse struct {
 	Result   SDAPIResult `json:"result"`
 	ImageURL string      `json:"image_url"`
 }
+
+type WebGradeRequest struct {
+	GraderName string `json:"grader_name" bun:"grader_name"`
+	ProposalID string `json:"proposal_id" bun:"proposal_id"`
+	Grade      int    `json:"grade" bun:"grade"`
+}
+
+type WebGradeResponse struct {
+	Ok bool `json:"ok"`
+}
