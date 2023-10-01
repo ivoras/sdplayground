@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Stable Diffusion playground</title>
+    <title>ARt Future grading</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3/dist/litera/bootstrap.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.min.js" integrity="sha512-fHY2UiQlipUq0dEabSM4s+phmn+bcxSYzXP4vAXItBvBHU7zAM/mkhCZjtBEIJexhOMzZbgFlPLuErlJF2b+0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.js" integrity="sha512-2AL/VEauKkZqQU9BHgnv48OhXcJPx9vdzxN1JrKDVc4FPU/MEE/BZ6d9l0mP7VmvLsjtYwqiYQpDskK9dG8KBA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>  </head>
@@ -17,8 +17,12 @@
                 <img style="height: 100%;" data-bind="attr: { src: artwork_url }">
             </div>
             <div>
-                <p style="text-align: center"><b><span data-bind="text: author_name"></span>: <span data-bind="text: artwork_title"></span></b><br>
-                <span data-bind="text: artwork_description"></span></p>
+                <p style="text-align: center">
+                  [<span data-bind="text: $root.prop_index"></span>/<span data-bind="text: $root.proposals().length"></span>]
+                  <b><span data-bind="text: author_name"></span>: <span data-bind="text: artwork_title"></span></b>
+                  (<span data-bind="author_country"></span>)
+                  <br>
+                  <span data-bind="text: artwork_description"></span></p>
             </div>
         </div>
 
