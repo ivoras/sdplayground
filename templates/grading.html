@@ -10,7 +10,8 @@
 
         <p>Dobrodošli, <span data-bind="text: grader_name"></span>! Ovo je jednostavna aplikacija za ocjenjivanje
            pristiglih radova za ARt Future 2023. Korištenje aplikacije je vrlo jednostavno: pritisnite tipku
-           na vašoj tipkovnici između 1-5, čime ćete dati ocjenu trenutnoj slici i odmah prikazati iduću.</p>
+           na vašoj tipkovnici između 1-5, čime ćete dati ocjenu trenutnoj slici i odmah prikazati iduću. 
+           strelicama lijevo i desno možete gledati prijašnje i sljedeće radove.</p>
         
         <div data-bind="with: prop">
             <div style="height: 80%; text-align: center">
@@ -20,15 +21,14 @@
                 <p style="text-align: center">
                   [<span data-bind="text: $root.prop_index"></span>/<span data-bind="text: $root.proposals().length"></span>]
                   <b><span data-bind="text: author_name"></span>: <span data-bind="text: artwork_title"></span></b>
-                  (<span data-bind="author_country"></span>)
+                  (<span data-bind="text: author_country"></span>)
                   <br>
                   <span data-bind="text: artwork_description"></span></p>
             </div>
         </div>
 
         <p>Molimo, ocijenite rad tako da pritisnete jednu tipku s brojem od 1-5 na vašoj tipkovnici. Pri ocjenjivanju molimo da uzmete u obzir opis djela, te sukladnost
-            s ovogodišnjom temom izložbe - Emocionalna i umjetna inteligencija. Zbog velikog broja radova i kratkih rokova,
-            nećete moći revidirati ocjene koje ste već dali.
+            s ovogodišnjom temom izložbe - Emocionalna i umjetna inteligencija. 
         </p>
     
     </div>
@@ -45,8 +45,10 @@
 
       function goToProposal(idx) {
         if (idx >= viewModel.proposals().length) {
-            alert("No more proposals");
-            return
+          idx = 0;
+        }
+        if (idx < 0) {
+          idx = viewModel.proposals().length-1;
         }
         viewModel.prop(viewModel.proposals()[idx]);
         viewModel.prop_index(idx);
@@ -56,7 +58,7 @@
       var media_url_prefix = "";
 
       async function fetchProposals() {
-        var resp = await fetch("/media/proposals.json");
+        var resp = await fetch("/media/proposals2.json");
         var data = await resp.json();
         viewModel.proposals(data);
         goToProposal(0);
@@ -91,6 +93,10 @@
             window.addEventListener('keydown', (e) => {
                 if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4" || e.key == "5") {
                     processGrade(parseInt(e.key));                    
+                } else if (e.key == "ArrowRight" || e.key == " ") {
+                  goToProposal(viewModel.prop_index() + 1);
+                } else if (e.key == "ArrowLeft") {
+                  goToProposal(viewModel.prop_index() - 1);
                 }
             });
       
